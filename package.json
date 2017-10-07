@@ -1,0 +1,40 @@
+{
+  "name": "nodejs-translate",
+  "version": "0.0.1",
+  "private": true,
+  "license": "Apache-2.0",
+  "author": "Nicholas Aiello <nikko.aiello@gmail.com>",
+  "engines": {
+    "node": ">=4.3.2"
+  },
+  "main": "server.js",
+  "scripts": {
+    "pretest": "npm run lint",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@google-cloud/translate": "1.0.0",
+    "yargs": "8.0.2",
+    "express": "^4.13.3"
+  },
+  "devDependencies": {
+    "@google-cloud/nodejs-repo-tools": "1.4.17",
+    "ava": "0.21.0",
+    "proxyquire": "1.8.0",
+    "sinon": "3.2.0"
+  },
+  "cloud-repo-tools": {
+    "requiresKeyFile": true,
+    "requiresProjectId": true,
+    "product": "translate",
+    "samples": [
+      {
+        "id": "translate",
+        "name": "Translate",
+        "file": "translate.js",
+        "docs_link": "https://cloud.google.com/translate/docs",
+        "usage": "node translate.js --help"
+      }
+    ]
+  }
+}
