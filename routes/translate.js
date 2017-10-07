@@ -27,10 +27,10 @@ router.get('/:frm/:to', async (req, res) => {
     text = req.query.text || null;
 
   if (text && /^[\w\s\-\'\?\.\,]{2,256}$/.test(text)) {
-    const data = await _makeTranslateRequest(text, to, frm);
+    const result = await _makeTranslateRequest(text, to, frm);
     res.send({
-      result: data,
-      success: data.errors === undefined });
+      result: result,
+      success: result.errors === undefined });
   } else {
     res.send({
       result: { message: 'Invalid string provided' },
@@ -38,13 +38,20 @@ router.get('/:frm/:to', async (req, res) => {
   }
 });
 
-// TODO
-router.post('/:frm/:to', (req, res) => {
-  const frm = req.params.frm,
-    to = req.params.to,
-    text = req.body;
+// WS
+router.ws('/', (ws, req) => {
 
-  res.send({ result: {} });
+  ws.on('message', async (msg) => {
+    console.log(msg);
+    const data = JSON.parse(msg || '{}');
+    if (data.text && /^[\w\s\-\'\?\.\,]{2,256}$/.test(data.text)) {
+      const result = await _makeTranslateRequest(data.text, data.to, data.frm);
+      ws.send(JSON.stringify({
+        result: result,
+        success: result.errors === undefined }));
+    }
+  });
+
 });
 
 
