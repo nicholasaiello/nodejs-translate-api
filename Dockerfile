@@ -16,5 +16,9 @@ COPY . .
 # map port
 EXPOSE 8080
 
+# set env
+COPY .env.docker .
+RUN .env.docker
+
 # start command
 CMD [ "npm", "start" ]

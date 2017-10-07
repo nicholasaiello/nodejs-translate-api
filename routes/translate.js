@@ -1,22 +1,44 @@
 const express = require('express');
 const router = express.Router();
 
-// TODO add translateClient to Request
-const Translate = require('@google-cloud/translate');
+const fetch = require('node-fetch');
 
-const projectId = process.env.GOOGLE_PROJECT_ID;
-const translateClient = Translate({
-  projectId: projectId
+const API_KEY = process.env.GOOGLE_API_KEY;
+const BASE_API_URL = 'https://translation.googleapis.com/language/translate/v2';
+
+
+const makeTranslateRequest = (q, to = 'es', frm = 'en') => {
+  const url = `${BASE_API_URL}?q=${q}&target=${to}&source=${frm}&key=${API_KEY}`;
+
+  console.log('makeTranslateRequest', url);
+  return fetch(url, { method: 'GET' })
+    .then(response => response.json())
+    .then(json => {
+      return ('error' in json) 
+        ? json.error 
+        : (json.data.translations || [{translatedText: null}])[0];
+    })
+}
+
+// only for testing
+router.get('/:frm/:to', async (req, res) => {
+  const frm = req.params.frm,
+    to = req.params.to,
+    text = req.query.text;
+
+  const data = await makeTranslateRequest(text, to, frm);
+
+  res.send({ result: data, success: data.errors === undefined });
 });
 
-
-// stock price by symbol
+// TODO
 router.post('/:frm/:to', (req, res) => {
   const frm = req.params.frm,
-  	to = req.params.to,
-  	text = req.body;
+    to = req.params.to,
+    text = req.body;
 
-  res.send({
-  	result: {}
-  });
+  res.send({ result: {} });
 });
+
+
+module.exports = router;
