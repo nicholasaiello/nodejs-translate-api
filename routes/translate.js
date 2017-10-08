@@ -10,9 +10,7 @@ const API_KEY = process.env.GOOGLE_API_KEY,
 
 const _makeTranslateRequest = (q, to = 'es', frm = 'en') => {
   const url = `${BASE_API_URL}?q=${q}&target=${to}&source=${frm}&key=${API_KEY}`,
-    headers = new Headers();
-  
-  headers.append('Referrer', HEADER_REFERRER);
+    headers = {};
 
   return fetch(url, { method: 'GET', headers: headers })
     .then(response => response.json())
