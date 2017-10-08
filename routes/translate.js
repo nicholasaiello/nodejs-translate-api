@@ -3,15 +3,18 @@ const router = express.Router();
 
 const fetch = require('node-fetch');
 
-const API_KEY = process.env.GOOGLE_API_KEY;
-const BASE_API_URL = 'https://translation.googleapis.com/language/translate/v2';
+const API_KEY = process.env.GOOGLE_API_KEY,
+  BASE_API_URL = 'https://translation.googleapis.com/language/translate/v2',
+  HEADER_REFERRER = process.env.HEADER_REFERRER || '';
 
 
 const _makeTranslateRequest = (q, to = 'es', frm = 'en') => {
-  const url = `${BASE_API_URL}?q=${q}&target=${to}&source=${frm}&key=${API_KEY}`;
+  const url = `${BASE_API_URL}?q=${q}&target=${to}&source=${frm}&key=${API_KEY}`,
+    headers = new Headers();
+  
+  headers.append('Referrer', HEADER_REFERRER);
 
-  console.log('makeTranslateRequest', url);
-  return fetch(url, { method: 'GET' })
+  return fetch(url, { method: 'GET', headers: headers })
     .then(response => response.json())
     .then(json => (
       ('error' in json) 
