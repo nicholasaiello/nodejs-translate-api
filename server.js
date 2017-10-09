@@ -23,13 +23,12 @@ app.use(logger(process.env.NODE_ENV || 'dev'));
 
 // add redis client
 app.use((req, res, next) => {
-  req._redis = {};
   req._redis = redisClient;
   next();
 });
 
 /*
- * routes
+ * Routes
  */
 
 // http(s) & ws
@@ -47,18 +46,6 @@ app.use((req, res, next) => {
   next(err);
 });
 
-// remove stack info for non-dev environments
-// if (app.get('env') === 'development') {
-//   app.use((err, req, res, next) => {
-//     res.status(err.status || 500);
-//     res.render('error', { message: err.message, error: err });
-//   });
-// } else {
-//   app.use((err, req, res, next) => {
-//     res.status(err.status || 500);
-//     res.render('error', { message: err.message, error: {} });
-//   });
-// }
 
 app.listen(PORT, HOST);
 console.log(`Node server start @ ${HOST}:${PORT}`);
