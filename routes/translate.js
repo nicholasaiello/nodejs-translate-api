@@ -21,17 +21,39 @@ const _makeTranslateRequest = (q, to = 'es', frm = 'en') => {
     ))
 }
 
+const _getFromCache = (key, req) => {
+  return new Promise((resolve) => {
+    req._redis.get(key, (err, reply) => {
+      resolve(reply);
+    })
+  }).then((reply) => reply);
+};
+
 // only for testing
 router.get('/:frm/:to', async (req, res) => {
   const frm = req.params.frm,
     to = req.params.to,
-    text = req.query.text || null;
+    text = req.query.text || '';
 
-  if (text && /^[\w\s\-\'\?\.\,]{2,256}$/.test(text)) {
-    const result = await _makeTranslateRequest(text, to, frm);
+  if (/^[\w\s\-\'\?\.\,]{2,256}$/.test(text)) {
+
+    let result = null;
+    const key = `${frm}:${to}:${text.toLowerCase()}`;
+
+    result = await _getFromCache(key, req);
+    if (result === null) {
+      result = await _makeTranslateRequest(text, to, frm);
+      if (result.errors === undefined) {  // cache successful results
+        req._redis.set(key, JSON.stringify(result));
+      }
+    } else {
+      result = JSON.parse(result);
+    }
+
     res.send({
       result: result,
       success: result.errors === undefined });
+
   } else {
     res.send({
       result: { message: 'Invalid string provided' },
@@ -43,14 +65,28 @@ router.get('/:frm/:to', async (req, res) => {
 router.ws('/', (ws, req) => {
 
   ws.on('message', async (msg) => {
-    console.log(msg);
+
     const data = JSON.parse(msg || '{}');
-    if (data.text && /^[\w\s\-\'\?\.\,]{2,256}$/.test(data.text)) {
-      const result = await _makeTranslateRequest(data.text, data.to, data.frm);
+    if (/^[\w\s\-\'\?\.\,]{2,256}$/.test(data.text || '')) {
+
+      let result = null;
+      const key = `${data.frm}:${data.to}:${data.text.toLowerCase()}`;
+
+      result = await _getFromCache(key, req);
+      if (result === null) {
+        result = await _makeTranslateRequest(data.text, data.to, data.frm);
+        if (result.errors === undefined) {  // cache successful results
+          req._redis.set(key, JSON.stringify(result));
+        }
+      } else {
+        result = JSON.parse(result);
+      }
+
       ws.send(JSON.stringify({
         result: result,
         success: result.errors === undefined }));
     }
+
   });
 
 });

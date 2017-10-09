@@ -14,12 +14,14 @@
   },
   "dependencies": {
     "@google-cloud/translate": "1.0.0",
+    "bluebird": "^3.5.1",
     "debug": "~2.6.0",
     "express": "^4.14.1",
     "express-ws": "^3.0.0",
     "jade": "~1.11.0",
     "morgan": "~1.7.0",
     "node-fetch": "^1.7.3",
+    "redis": "^2.8.0",
     "yargs": "8.0.2"
   },
   "devDependencies": {
