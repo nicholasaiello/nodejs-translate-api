@@ -7,6 +7,14 @@ const API_KEY = process.env.GOOGLE_API_KEY,
   BASE_API_URL = 'https://translation.googleapis.com/language/translate/v2',
   HEADER_REFERRER = process.env.HEADER_REFERRER || '';
 
+const _format = (obj) => {
+  if ('translatedText' in obj) {
+    obj.translatedText = obj.translatedText
+      .replace(/&#39;/g, "'");
+  }
+
+  return obj;
+}
 
 const _makeTranslateRequest = (q, to = 'es', frm = 'en') => {
   const url = `${BASE_API_URL}?q=${q}&target=${to}&source=${frm}&key=${API_KEY}`;
@@ -16,7 +24,7 @@ const _makeTranslateRequest = (q, to = 'es', frm = 'en') => {
     .then(json => (
       ('error' in json) 
         ? json.error 
-        : (json.data.translations || [{translatedText: null}])[0]
+        : _format((json.data.translations || [{translatedText: null}])[0])
     ))
 }
 
